@@ -48,12 +48,16 @@ new_labels = []
 for label in labels:
   new_labels.append(labels_map_cat_to_num[label])
 
-#Dividindo dados em treino e validação
-images_train, images_val, labels_train, labels_val = train_test_split(images, new_labels, test_size=0.20, random_state=2)
+#Dividindo dados em treino, validação e teste
+images_train, images_test, labels_train, labels_test = train_test_split(images, new_labels, test_size=0.20, random_state=7, shuffle=True)
+images_train, images_val, labels_train, labels_val = train_test_split(images_train, labels_train, test_size=0.20, random_state=7, shuffle=True)
 
 labels_train = to_categorical(labels_train, num_classes, 'int32')
 labels_val = to_categorical(labels_val, num_classes, 'int32')
+labels_test = to_categorical(labels_test, num_classes, 'int32')
+labels = to_categorical(new_labels, num_classes, 'int32')
 
+test_len = len(images_test)
 train_len = len(images_train)
 val_len = len(images_val)
 
@@ -73,9 +77,9 @@ model.add(layers.Flatten())
 model.add(layers.Dropout(0.5))
 model.add(layers.Dense(512, activation='relu'))
 model.add(layers.Dense(7, activation='softmax'))
-#print(model.summary())
 
 model.compile(loss='categorical_crossentropy', optimizer=optimizers.Adam(lr=1e-3), metrics=['acc'])
+#print(model.summary())
 
 #Aplicando ImageDataGenerator aos dados lidos
 train_datagen = ImageDataGenerator(rescale=1./255, rotation_range=40, width_shift_range=0.2, height_shift_range=0.2, shear_range=0.2, zoom_range=0.2, horizontal_flip=True)
@@ -85,7 +89,9 @@ train_generator = train_datagen.flow(images_train, labels_train, batch_size=batc
 val_generator = val_datagen.flow(images_val, labels_val, batch_size=batch_size)
 
 #Treinando modelo de CNN
-history = model.fit_generator(train_generator, steps_per_epoch=train_len // batch_size, epochs=50, validation_data=val_generator, validation_steps=val_len // batch_size)
+history = model.fit_generator(train_generator, steps_per_epoch=train_len // batch_size, epochs=100, validation_data=val_generator, validation_steps=val_len // batch_size)
+
+model.evaluate(images_test, labels_test, batch_size=batch_size)
 
 #Salvando o modelo
 model.save_weights(models_dir + '/model_cnn_weights_acc.h5')
