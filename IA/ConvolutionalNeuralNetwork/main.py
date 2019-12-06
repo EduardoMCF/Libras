@@ -30,7 +30,8 @@ def rgb2gray(rgb):
     return np.dot(rgb[...,:3], [0.2989, 0.5870, 0.1140])
 
 #Lendo dados do dataset
-images, labels, _ = load_dataset(data_dir)
+lbl_list = ['1', '2', '4', '5', '7', '9', 'A', 'Adulto', 'America', 'Aviao', 'B', 'C', 'Casa', 'D', 'E', 'F', 'G', 'Gasolina', 'I', 'Identidade', 'Junto', 'L', 'Lei', 'M', 'N', 'O', 'P', 'Palavra', 'Pedra', 'Pequeno', 'Q', 'R', 'S', 'T', 'U', 'V', 'Verbo', 'W', 'X', 'Y']
+images, labels, _ = load_dataset(data_dir, lbl_list)
 
 num_classes = len(set(labels))
 print('number of classes: %d'%num_classes)
@@ -48,6 +49,10 @@ new_labels = []
 for label in labels:
   new_labels.append(labels_map_cat_to_num[label])
 
+labels_names = []
+for i in range(len(labels_map_num_to_cat.keys())):
+  labels_names.append(labels_map_num_to_cat[i])
+
 #Dividindo dados em treino, validação e teste
 images_train, images_test, labels_train, labels_test = train_test_split(images, new_labels, test_size=0.20, random_state=7, shuffle=True)
 images_train, images_val, labels_train, labels_val = train_test_split(images_train, labels_train, test_size=0.20, random_state=7, shuffle=True)
@@ -64,21 +69,22 @@ val_len = len(images_val)
 batch_size = 32
 
 #Definindo modelo para CNN
+#quantidade de parametros duplicada qnd usado todas as classes
 model = models.Sequential()
-model.add(layers.Conv2D(32, (3,3), activation='relu', input_shape=(50, 50, 3)))
+model.add(layers.Conv2D(128, (3,3), activation='relu', input_shape=(50, 50, 3)))
 model.add(layers.MaxPooling2D((2,2)))
-model.add(layers.Conv2D(64, (3, 3), activation='relu'))
+model.add(layers.Conv2D(256, (3, 3), activation='relu'))
 model.add(layers.MaxPooling2D((2,2)))
-model.add(layers.Conv2D(128, (3,3), activation='relu'))
+model.add(layers.Conv2D(512, (3,3), activation='relu'))
 model.add(layers.MaxPooling2D((2,2)))
-model.add(layers.Conv2D(128, (3,3), activation='relu'))
+model.add(layers.Conv2D(512, (3,3), activation='relu'))
 model.add(layers.MaxPooling2D((2,2)))
 model.add(layers.Flatten())
 model.add(layers.Dropout(0.5))
-model.add(layers.Dense(512, activation='relu'))
-model.add(layers.Dense(7, activation='softmax'))
+model.add(layers.Dense(1024, activation='relu'))
+model.add(layers.Dense(num_classes, activation='softmax'))
 
-model.compile(loss='categorical_crossentropy', optimizer=optimizers.Adam(lr=1e-3), metrics=['acc'])
+model.compile(loss='categorical_crossentropy', optimizer=optimizers.Adam(lr=1e-4), metrics=['acc'])
 #print(model.summary())
 
 #Aplicando ImageDataGenerator aos dados lidos

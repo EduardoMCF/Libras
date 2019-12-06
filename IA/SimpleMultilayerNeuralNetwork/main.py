@@ -40,7 +40,8 @@ def image_list2array_list(image_list):
   return np.array(new_list)
 
 #Lendo dados do dataset
-images, labels, _ = load_dataset(data_dir)
+lbl_list = ['1', '2', '4', '5', '7', '9', 'A', 'Adulto', 'America', 'Aviao', 'B', 'C', 'Casa', 'D', 'E', 'F', 'G', 'Gasolina', 'I', 'Identidade', 'Junto', 'L', 'Lei', 'M', 'N', 'O', 'P', 'Palavra', 'Pedra', 'Pequeno', 'Q', 'R', 'S', 'T', 'U', 'V', 'Verbo', 'W', 'X', 'Y']
+images, labels, _ = load_dataset(data_dir, lbl_list)
 
 num_classes = len(set(labels))
 print('number of classes: %d'%num_classes)
@@ -86,9 +87,9 @@ images_test_gray = image_list2array_list(images_test_gray)
 
 #Definindo modelo
 model_mlnn = models.Sequential()
-model_mlnn.add(layers.Dense(units=50, input_dim=2500, kernel_initializer='glorot_uniform', bias_initializer='zeros', activation='relu'))
-model_mlnn.add(layers.Dense(units=50, input_dim=50, kernel_initializer='glorot_uniform', bias_initializer='zeros', activation='tanh'))
-model_mlnn.add(layers.Dense(units=7, input_dim=50, kernel_initializer='glorot_uniform', bias_initializer='zeros', activation='softmax'))
+model_mlnn.add(layers.Dense(units=100, input_dim=2500, kernel_initializer='glorot_uniform', bias_initializer='zeros', activation='relu'))
+model_mlnn.add(layers.Dense(units=100, input_dim=50, kernel_initializer='glorot_uniform', bias_initializer='zeros', activation='tanh'))
+model_mlnn.add(layers.Dense(units=num_classes, input_dim=50, kernel_initializer='glorot_uniform', bias_initializer='zeros', activation='softmax'))
 
 sgd_optimizer = optimizers.SGD(lr=0.0001, decay=1e-7, momentum=0.9)
 
