@@ -3,8 +3,36 @@ import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.cluster import KMeans
 from keras.models import load_model
+from joblib import load
 
-labels = ['1', '4', 'X', 'S', 'B', 'D', 'America', '7', 'N', 'V', 'M', 'I', 'Gasolina', 'Lei', 'Pequeno', '5', 'T', 'Junto', 'Y', 'W', 'Pedra', 'Adulto', 'Identidade', 'C', 'F', 'Palavra', 'O', 'E', 'A', 'Aviao', '2', 'U', 'P', 'G', 'Q', 'Verbo', 'L', 'R', 'Casa', '9']
+labels = ['1',
+ '4',
+ 'X',
+ 'S',
+ 'B',
+ 'D',
+ '7',
+ 'N',
+ 'V',
+ 'M',
+ 'I',
+ '5',
+ 'T',
+ 'Y',
+ 'W',
+ 'C',
+ 'F',
+ 'O',
+ 'E',
+ 'A',
+ '2',
+ 'U',
+ 'P',
+ 'G',
+ 'Q',
+ 'L',
+ 'R',
+ '9']
 
 def isEsc(key):
     return key & 255 == 27
@@ -132,7 +160,7 @@ def captureImagesFromWebcam(path, classifier = None):
             if('cnn' in path):
                 p = classifier.predict(c.reshape((1, 50, 50, 3)))
             elif('rf' in path):
-                print ('irineu')
+                p = classifier.predict(c.ravel().reshape((1, -1)))
             else:
                 p = classifier.predict(image_list2array_list([rgb2gray(c)]))
 
@@ -159,8 +187,12 @@ def test(path):
     plot_images(image_RGB,image_YCrCb,binary_image,result)
 
 def run(path):
-    model = load_model(path)
+    model = None
+    if('rf' in path):
+        model = load(path)
+    else:
+        model = load_model(path)
     captureImagesFromWebcam(path, model)
     print("Finishing...")
 
-run('model_rf.h5')
+run('model_rf_acc08110_no_words.h5')
